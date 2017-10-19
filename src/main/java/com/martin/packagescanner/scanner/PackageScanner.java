@@ -16,6 +16,7 @@ public interface PackageScanner {
      * Get all fully qualified names located in the specified package
      * and its sub-package.
      *
+     * @param basePackages The base package to scan.
      * @return A list of fully qualified names.
      * @throws IOException <br>
      */
