@@ -49,7 +49,7 @@ public class ClasspathPackageScannerTest {
     @Test
     public void testScanWithClassLoader() throws Exception {
         PackageScanner packageScanner = new ClasspathPackageScanner(getClass().getClassLoader());
-        List<String> classNames = packageScanner.scan("org.apache.log4j");
+        List<String> classNames = packageScanner.scan("com.martin");
 
         Assert.assertNotNull(classNames);
         Assert.assertTrue(classNames.size() > 0);

@@ -126,19 +126,24 @@ public class ClasspathPackageScanner implements PackageScanner {
             logger.debug("url is null, basePackage[{}] maybe is error", basePackage);
             return classNames;
         }
-        String filePath = StringUtil.getRootPath(url);
+
+        File file = StringUtil.toFile(url);
+        if (file == null) {
+            logger.warn("file is null, please check basePackage[{}] or URL[{}]", basePackage, url);
+            return classNames;
+        }
 
         // Get classes in that package.
         // If the web server unzips the jar file, then the classes will exist in the form of
         // normal file in the directory.
         // If the web server does not unzip the jar file, then classes will exist in jar file.
         List<String> names; // contains the name of the class file. e.g., Apple.class will be stored as "Apple"
-        if (isJarFile(filePath)) {
+        if (isJarFile(file.getName())) {
             // jar file
-            names = readFromJarFile(filePath, splashPath);
+            names = readFromJarFile(file, splashPath);
         } else {
             // directory
-            names = readFromDirectory(filePath, splashPath);
+            names = readFromDirectory(file, splashPath);
         }
 
         for (String name : names) {
@@ -154,8 +159,8 @@ public class ClasspathPackageScanner implements PackageScanner {
         return classNames;
     }
 
-    private List<String> readFromJarFile(String jarPath, String splashedPackageName) throws IOException {
-        JarInputStream jarIn = new JarInputStream(new FileInputStream(jarPath));
+    private List<String> readFromJarFile(File file, String splashedPackageName) throws IOException {
+        JarInputStream jarIn = new JarInputStream(new FileInputStream(file));
         JarEntry entry = jarIn.getNextJarEntry();
 
         List<String> nameList = new ArrayList<>();
@@ -171,21 +176,20 @@ public class ClasspathPackageScanner implements PackageScanner {
         return nameList;
     }
 
-    private List<String> readFromDirectory(String filePath, String splashedPackageName) {
+    private List<String> readFromDirectory(File file, String splashedPackageName) {
         List<String> nameList = new ArrayList<>();
 
-        File directory = new File(filePath);
-        File[] files = directory.listFiles();
+        File[] files = file.listFiles();
         if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    List<String> subDirectoryList = readFromDirectory(filePath + "/" + file.getName(),
-                            splashedPackageName + "/" + file.getName());
+            for (File subFile : files) {
+                if (subFile.isDirectory()) {
+                    List<String> subDirectoryList = readFromDirectory(subFile,
+                            splashedPackageName + "/" + subFile.getName());
                     if (subDirectoryList != null) {
                         nameList.addAll(subDirectoryList);
                     }
-                } else if (isClassFile(file.getName())) {
-                    nameList.add(splashedPackageName + "/" + file.getName());
+                } else if (isClassFile(subFile.getName())) {
+                    nameList.add(splashedPackageName + "/" + subFile.getName());
                 }
             }
         }
