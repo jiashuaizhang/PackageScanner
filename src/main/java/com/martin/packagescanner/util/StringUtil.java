@@ -1,6 +1,8 @@
 package com.martin.packagescanner.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 
 /**
  * @author chen.tengfei <br>
@@ -18,15 +20,16 @@ public class StringUtil {
      * "file:/home/whf/cn/fh" -> "/home/whf/cn/fh"
      * "jar:file:/home/whf/foo.jar!cn/fh" -> "/home/whf/foo.jar"
      */
-    public static String getRootPath(URL url) {
-        String fileUrl = url.getFile();
-        int pos = fileUrl.indexOf('!');
+    public static String getRootPath(URL url) throws UnsupportedEncodingException {
+        String urlPath = url.getPath();
+        urlPath = URLDecoder.decode(urlPath, "UTF-8");
+        int pos = urlPath.indexOf('!');
 
         if (-1 == pos) {
-            return fileUrl;
+            return urlPath;
         }
 
-        return fileUrl.substring(5, pos);
+        return urlPath.substring(5, pos);
     }
 
     /**

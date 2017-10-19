@@ -26,7 +26,7 @@ public class ClasspathPackageScannerTest {
     * 
     */ 
     @Test
-    public void testGetFullyQualifiedClassNameList() throws Exception {
+    public void testScan() throws Exception {
         ClasspathPackageScanner packageScanner = new ClasspathPackageScanner();
         packageScanner.resetFilter();
         packageScanner.addIncludeFilter(".*(xml).*");
@@ -47,7 +47,7 @@ public class ClasspathPackageScannerTest {
      *
      */
     @Test
-    public void testGetFullyQualifiedClassNameListWithClassLoader() throws Exception {
+    public void testScanWithClassLoader() throws Exception {
         PackageScanner packageScanner = new ClasspathPackageScanner(getClass().getClassLoader());
         List<String> classNames = packageScanner.scan("org.apache.log4j");
 
@@ -57,6 +57,5 @@ public class ClasspathPackageScannerTest {
         for (String name : classNames) {
             logger.info("find class [{}]", name);
         }
-
     }
 } 

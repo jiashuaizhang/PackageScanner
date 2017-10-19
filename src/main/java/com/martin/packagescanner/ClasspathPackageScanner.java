@@ -44,7 +44,7 @@ public class ClasspathPackageScanner implements PackageScanner {
      * @param classLoader Use this class load to locate the package.
      */
     public ClasspathPackageScanner(ClassLoader classLoader) {
-        this.classLoader = classLoader;
+        this.classLoader = classLoader == null ? getClass().getClassLoader() : classLoader;
         resetFilter(true);
     }
 
