@@ -218,6 +218,4 @@ public class ClasspathPackageScanner implements PackageScanner {
     private boolean isJarFile(String name) {
         return name.endsWith(".jar");
     }
-
-
 }
