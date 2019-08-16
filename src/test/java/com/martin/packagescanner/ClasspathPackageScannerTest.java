@@ -2,6 +2,7 @@ package com.martin.packagescanner;
 
 import java.util.List;
 
+import com.martin.packagescanner.service.BaseService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -38,6 +39,32 @@ public class ClasspathPackageScannerTest {
 
         for (String name : classNames) {
             logger.info("find class [{}]", name);
+        }
+    }
+
+    @Test
+    public void testScanForClasses() throws Exception {
+        ClasspathPackageScanner packageScanner = new ClasspathPackageScanner();
+        List<Class> classes = packageScanner.scanForClasses("com.martin.packagescanner.service.impl");
+
+        Assert.assertNotNull(classes);
+        Assert.assertTrue(classes.size() > 0);
+
+        for (Class clazz : classes) {
+            logger.info("find class [{}] is implement of BaseService [{}]", clazz, BaseService.class.isAssignableFrom(clazz));
+        }
+    }
+
+    @Test
+    public void testBuilder() throws Exception {
+        ClasspathPackageScanner packageScanner = ClasspathPackageScanner.newBuilder().addExcludeFilter("^.*OtherServiceImpl$").build();
+        List<Class> classes = packageScanner.scanForClasses("com.martin.packagescanner.service.impl");
+
+        Assert.assertNotNull(classes);
+        Assert.assertTrue(classes.size() > 0);
+
+        for (Class clazz : classes) {
+            logger.info("find class [{}] is implement of BaseService [{}]", clazz, BaseService.class.isAssignableFrom(clazz));
         }
     }
 

@@ -31,12 +31,15 @@ public class ClasspathPackageScanner implements PackageScanner {
 
     private List<String> excludeFilter = new LinkedList<>();
 
+    {
+        registerDefaultFilter();
+    }
+
     /**
      * Construct an instance and specify the base package it should scan.
      */
     public ClasspathPackageScanner() {
         this.classLoader = getClass().getClassLoader();
-        resetFilter(true);
     }
 
     /**
@@ -45,7 +48,6 @@ public class ClasspathPackageScanner implements PackageScanner {
      */
     public ClasspathPackageScanner(ClassLoader classLoader) {
         this.classLoader = classLoader == null ? getClass().getClassLoader() : classLoader;
-        resetFilter(true);
     }
 
     /**
@@ -99,6 +101,24 @@ public class ClasspathPackageScanner implements PackageScanner {
             classNames.addAll(doScan(basePackage));
         }
         return classNames;
+    }
+
+    @Override
+    public List<Class> scanForClasses(String... basePackages) throws IOException {
+        List<String> fullNames = scan(basePackages);
+        List<Class> classes = null;
+        if(fullNames != null && !fullNames.isEmpty()){
+            classes = new ArrayList<>(fullNames.size());
+            for (String fullName : fullNames) {
+                try {
+                    Class clazz = Class.forName(fullName);
+                    classes.add(clazz);
+                } catch (ClassNotFoundException e) {
+                    logger.error(String.format("error occurred while instanced java.lang.Class object for class full name [%s]", fullName) ,e);
+                }
+            }
+        }
+        return classes;
     }
 
     /**
@@ -208,7 +228,8 @@ public class ClasspathPackageScanner implements PackageScanner {
                 return true;
             }
         }
-        return includeFilter.isEmpty(); // if inclusion filter is empty, that mean matched.
+        // if inclusion filter is empty, that mean matched.
+        return includeFilter.isEmpty();
     }
 
     private boolean isClassFile(String name) {
@@ -217,5 +238,33 @@ public class ClasspathPackageScanner implements PackageScanner {
 
     private boolean isJarFile(String name) {
         return name.endsWith(".jar");
+    }
+
+    public static Builder newBuilder(){
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private ClasspathPackageScanner scanner;
+
+        public Builder(){
+            scanner = new ClasspathPackageScanner();
+        }
+
+        public Builder addIncludeFilter(String regex) {
+            scanner.addIncludeFilter(regex);
+            return this;
+        }
+
+        public Builder addExcludeFilter(String regex) {
+            scanner.addExcludeFilter(regex);
+            return this;
+        }
+
+        public ClasspathPackageScanner build() {
+            return scanner;
+        }
+
     }
 }
